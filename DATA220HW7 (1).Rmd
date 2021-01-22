@@ -1,0 +1,169 @@
+---
+title: "hw7"
+author: '[Arjun Bhan]'
+date: '[4/9/19]'
+output:
+  html_document:
+    fig_height: 4
+    fig_width: 6
+  pdf_document: default
+---
+
+
+
+* * *
+
+**Load data:**
+
+
+
+```{r echo=FALSE}
+ad=read.csv("http://foxweb.marist.edu/users/duy.nguyen2/Advertising.csv",head=TRUE)
+load(url("http://foxweb.marist.edu/users/duy.nguyen2/mlb11.RData"))
+```
+
+* * *
+
+#### 1:
+
+
+```{r}
+pairs(mlb11[,1:5],gap=0,pch=".",lower.panel = NULL)
+plot(mlb11$runs~mlb11$at_bats)
+#I would use a scatter plot to display the realationship between runs and another numerical variable.
+#The realtionship looks linear, but without a stroung correlation.
+#I would feel more comfortable using a  linear model to predict a teams number of runs if I knew the team at bats since the two variable seem somewhat correlated.
+
+```
+
+
+#### 2:
+
+```{r}
+cor(mlb11$runs, mlb11$at_bats)
+# There is a stroung correlation between runs and at_atbats.  The it dirrection of the graph is up and to the right.
+#There seems to be no unushual obervations.
+```
+
+
+#### 3: 
+```{r}
+plot_ss(x = mlb11$at_bats, y = mlb11$runs, showSquares = TRUE)
+#1.Sum of Squares:  167167.5
+#2 Sum of Squares:  153649.9
+#3 Sum of Squares:  140180.7
+#4 Sum of Squares:  132975.1
+#5 Sum of Squares:  160899.8
+#Smallest is 132975.1
+```
+
+#### 4:
+```{r}
+m1 <- lm(runs ~ at_bats, data = mlb11)
+m2<-lm(runs~homeruns,data = mlb11)
+summary(m2)
+#runs=415.2389+1.845*homeruns
+#If the homeruns increases 1 unit then the runs will increase by a factor of 1.8345
+```
+
+#### 5:
+```{r}
+plot(mlb11$runs ~ mlb11$at_bats)
+abline(m1)
+-2789.2429+.6305*5579
+which(mlb11$at_bats==5579)
+mlb11[16,]
+# The team would predict 728.3166.
+# It is an overestimate by 15.3166
+```
+
+#### 6:
+```{r}
+plot(m1$residuals - mlb11$at_bats)
+abline(h = 0, lty = 3)
+# There is a realtionship between at_bats and runs.
+#The realtionship does not looks linear.
+```
+
+#### 7:
+```{r}
+hist(m1$residuals)
+plot(m1$residuals)
+qqnorm(m1$residuals)
+qqline(m1$residuals)
+# The data is not normal.
+```
+
+#### 8:
+
+```{r}
+#There is no corelation because there no trend in the graph and the residal is independent.
+
+```
+
+
+* * *
+
+## On your own
+
+#### 1:
+```{r}
+cor(ad$sales,ad$TV)
+cor(ad$sales,ad$radio)
+cor(ad$sales, ad$newspaper)
+```
+
+#### 2:
+```{r}
+m3=lm(sales~radio, data=ad)
+m3$coefficients
+new=data.frame((radio=c(38,40,43)))
+new
+predict(m3, newdata = new)
+# The prediction is 17.00648 17.41147 18.01896 
+```
+
+#### 3:
+```{r}
+cor(ad$radio,ad$sales)
+cor(ad$TV,ad$newspaper)
+cor(ad$TV,ad$sales)
+plot(ad$radio~ad$sales)
+m3=lm(sales~radio, data=ad)
+abline(m3$coefficients)
+m4=lm(sales~TV, data=ad)
+plot(ad$TV,ad$sales)
+abline(m4$coefficients)
+# TV and radios have the strongest correlation 
+# there is a linear realtionship between sale and tv. There is also a linear realtionship between sale and radio.
+```
+
+#### 4:
+```{r}
+summary(m3)
+#We reject null hypothesis because the p value is less than .05.
+summary(m4)
+#We reject null hypothesis because the p value is less than .05.
+```
+
+#### 5:
+```{r}
+plot(m3$residuals)
+plot(m4$residuals)
+qqline(m3$residuals)
+abline(m3$residuals)
+qqline(m4$residuals)
+abline(m4$residuals)
+hist(m3$residuals)
+hist(m4$residuals)
+# The indepednce condtion is meet for m3.The condtion trend for m3 is not normal. The distributon of m3 seems to be normal.
+#The indepednce condtion is meet for m4. The condtion trend for m4 is not normal. The distributon of m4 does not seems to be normal.
+
+```
+
+#### 6:
+```{r}
+summary(m3)
+summary(m4)
+#Since m4 has a higher r squred value of 0.6099 than m3 value of 0.3287. m3 would be considered the beter value.
+```
