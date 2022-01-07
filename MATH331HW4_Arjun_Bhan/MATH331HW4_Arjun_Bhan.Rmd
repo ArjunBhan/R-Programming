@@ -1,0 +1,81 @@
+---
+title: "[Homework #4]"
+author: "[Arjun Bhan]"
+date: "[4/8/2021]"
+output:
+  html_document:
+    fig_height: 4
+    fig_width: 6
+---
+
+
+* * *
+```{r}
+library(EnvStats)
+```
+
+#### Exercise 1: 
+```{r}
+#Written in other PDF
+```
+
+
+#### Exercise 2:
+```{r}
+alpha=.05
+Democrats=c(22.4,24.0,38.0,45.7,21.2,17.9,38.2,33.7,23.8)
+Republicans=c(45.7,28.6,14.2,18.8,50.3,40.1,52.4)
+n=length(Democrats)
+m=length(Republicans)
+mu1=mean(Democrats)
+mu2=mean(Republicans)
+S2X=var(Democrats)
+S2Y=var(Republicans)
+t=(mu1-mu2)/(sqrt((S2X/n)+(S2Y/m)))
+theta=S2X/S2Y
+v=(theta+(n/m))^2/(theta^2/(n-1)+((1/(m-1))*(n/m)^2))
+v
+#Rounded 9.584532 to 10
+2*pt(-abs(t),10)
+#As the p values is above .05 we fail to reject the null hypothesis. 
+```
+
+
+#### Exercise 3:
+
+```{r}
+#Written in other PDF
+```
+
+#### Exercise 4:
+
+```{r}
+x=c(2.21,2.47,2.81,2.81,2.96,3.00,3.35,3.44,3.44,3.49)
+mu=1.84
+sigma0=(0.262)^2
+n=10
+m=10
+s2x=var(x)
+#a
+alpha=.05
+l=qchisq(alpha/2,n-1)
+r=qchisq(1-alpha/2,n-1)
+lower=sqrt((n-1)*s2x/r)
+upper=sqrt((n-1)*s2x/l)
+c(lower,upper)
+#0.3014431 0.8000719
+
+#b
+x=((m-1)^2*s2x/sigma0^2)
+1-pchisq(x,m-1)
+# We reject the null hypothesis because the p-value <.05. At the level of significant α=1%, the data suggest that the interest rates for five-year CDs are more variable than those for one-year certificates
+```
+
+#### Exercise 5:
+```{r}
+x=c(2.21,2.47,2.81,2.81,2.96,3.00,3.35,3.44,3.44,3.49)
+varTest(x,alternative="two.sided",conf.level=.95,sigma.squared=(.262)^4)
+sqrt( c(0.09086795,0.64011506))
+```
+
+

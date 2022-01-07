@@ -1,0 +1,139 @@
+---
+title: "[HW3: Confidence Interval and F-distribution]"
+author: "[Arjun Bhan]"
+date: "[3/31/2021]"
+output:
+  html_document:
+    fig_height: 4
+    fig_width: 6
+---
+
+
+* * *
+
+#### Exercise 1: 
+```{r}
+#The increase was significant as the 95% confidence interval did not contain .54 in its bounds.
+n=2253
+zalpha=qnorm(1-.05/2,0,1)
+
+xbar=1420/2253
+upperbound=xbar+zalpha*sqrt(xbar*(1-xbar)/n)
+lowerbound=xbar-zalpha*sqrt(xbar*(1-xbar)/n)
+c(lowerbound,upperbound)
+```
+
+
+#### Exercise 2:
+```{r}
+n=1015
+zalpha=qnorm(1-.1/2,0,1)
+xbar=281/1015
+xbar
+upperbound=xbar+zalpha*sqrt(xbar*(1-xbar)/n)
+lowerbound=xbar-zalpha*sqrt(xbar*(1-xbar)/n)
+c(lowerbound,upperbound)
+
+```
+
+
+#### Exercise 3:
+
+```{r}
+n=6
+zalpha=qnorm(1-.05/2,0,1)
+sigma=8
+xbar=mean(c(52,69,73,88,87,56))
+upperbound=xbar+zalpha*sigma/sqrt(n)
+lowerbound=xbar-zalpha*sigma/sqrt(n)
+c(lowerbound,upperbound)
+#According to the confidence interval it is not believable that males and females metabolize methylmercury at the same rate. Because the number 80 is not in the 95% confidence interval for woman.
+```
+
+#### Exercise 4:
+
+```{r}
+#Twain= muX  QCS=muY
+#Construct 95% CI for muX-muY
+alpha=.05
+ybar=c(.209,.205,.196,.210,.202,.207,.224,.223,.220,.201)
+
+xbar=c(.225,.262,.217,.240,.230,.229,.235,.217)
+
+n=length(xbar)
+m=length(ybar)
+
+s2x=var(xbar)
+s2y=var(ybar)
+
+xbar=mean(xbar)
+ybar=mean(ybar)
+
+Sp2=((n-1)*s2x+(m-1)*s2y)/(n+m-2)
+Sp2
+
+talpha=qt(1-alpha/2,m+n-2)
+lower=xbar-ybar-talpha*sqrt(Sp2)*sqrt(1/m+1/n)
+upper=xbar-ybar+talpha*sqrt(Sp2)*sqrt(1/m+1/n)
+c(lower,upper)
+# Since the confidence interval does not contain 0 we can conclude that they are different people.
+```
+
+#### Exercise 5:
+```{r}
+# Done in other PDF
+```
+
+
+
+#### Exercise 6:
+```{r}
+Democ=c(22.4,24.0,38.0,45.7,21.2,17.9,38.2,33.7,23.8)
+Repub=c(45.7,28.6,14.2,18.8,50.3,40.1,52.4)
+
+n=length(Democ)
+m=length(Repub)
+
+s2x=var(Democ)
+s2y=var(Repub)
+
+xbar=mean(Democ)
+ybar=mean(Repub)
+
+theta=s2x/s2y
+
+v=((theta+n/m)^2)/((theta^2)/(n-1)+(1/(m-1))*((n/m)^2))
+v
+
+talpha=qt(1-alpha/2,10)
+
+lower=xbar-ybar-(talpha)*(sqrt(s2x/n+s2y/m))
+upper=xbar-ybar+(talpha)*(sqrt(s2x/n+s2y/m))
+c(lower,upper)
+```
+
+
+#### Exercise 7:
+```{r}
+#Find P(1<=F<=2.5)
+pf(2.5, df1=20, df2=15)-pf(1, df1=20, df2=15)
+#Find P(F>=1)
+1-pf(1, df1=20, df2=15)
+
+#b
+#Find 5th percentile
+qf(0.05, df1=20,df2=15)
+#Find 10th percentile
+qf(0.1, df1=20,df2=15)
+#Find 90th percentile
+qf(0.9, df1=20,df2=15)
+#Find 95th percentile
+qf(0.95, df1=20,df2=15)
+#Find 99th percentile
+qf(0.99, df1=20,df2=15)
+
+#c
+#Plot the graph on the interval [0,10]
+curve(df(x,20,15),0,10,main="F-distribution with (20,15) df",ylab="Probability")
+```
+

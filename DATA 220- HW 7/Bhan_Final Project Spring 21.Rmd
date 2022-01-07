@@ -1,0 +1,147 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+Honor Pledge:
+
+"I understand I am allowed to discuss the data set and methodology with classmates in this class as I work on this project, but the decisions and actual work are my own.   I certify that I have not done anyone else's Final Project work for them.  I acknowledge that I am not allowed to provide the data set from this assignment to any person or website outside of this class.  I agree to delete this data set at the conclusion of the project."
+Arjun Bhan
+```{r}
+library(tidyverse)
+library(Stat2Data)
+library(maps)
+library(USAboundaries)
+library(sf)# Simple features standard.library
+library(ggplot2)
+library(RColorBrewer)
+library(mapproj)
+library(Stat2Data)
+library(lubridate)
+```
+
+```{r}
+us_states <- read.csv("us-states.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+states98 <- us_states("1998-01-01")
+```
+
+
+```{r}
+us_states_cases<-us_states%>% group_by(state) %>% summarize(cases=sum(deaths)/sum(cases))
+```
+```{r}
+US_Map_Death<-merge(states98, us_states_cases, by.x = "state_name", by.y = "state")
+US_Map_Death
+```
+```{r}
+count=1
+for (i in US_Map_Death$cases)
+{
+  if (US_Map_Death$cases[count]<=.01)
+  {
+    US_Map_Death$Percen[count]="0-1%"
+  }
+  else if (US_Map_Death$cases[count]<=.02 && US_Map_Death$cases[count]>.01)
+  {
+    US_Map_Death$Percen[count]="1-2%"
+  }
+    else if (US_Map_Death$cases[count]<=.03 && US_Map_Death$cases[count]>.02)
+  {
+    US_Map_Death$Percen[count]="2-3%"
+  }
+  else if (US_Map_Death$cases[count]<=.04 && US_Map_Death$cases[count]>.03)
+  {
+    US_Map_Death$Percen[count]="3-4%"
+  }
+  else
+  {
+    US_Map_Death$Percen[count]="Greater than 4%"
+  }
+  count=count+1
+}
+  
+```
+```{r}
+print(US_Map_Death$Percen[1])
+print(US_Map_Death$cases[1])
+print(US_Map_Death$state_name[1])
+```
+
+
+```{r}
+ggplot(US_Map_Death)+geom_sf(mapping = aes(fill = factor(Percen)))+ coord_sf(xlim = c(-170, -65), ylim = c(15,70), crs = st_crs(4269))+labs(title="Post COVID-19 Death Rate by USA State",x=element_blank(),y=element_blank(),fill="Post COVID-19\nDeath Percentage")+scale_fill_brewer(palette="Pastel1")
+```
+This visual is a choropleth that shows the chances of dying if one has contracted COVID for each state in America. We can see that the residents of New York and New Jersey have the highest probability of dying once they have contracted COVID. Similarly, residents of Alaska and Utah are the least likely to die after contracting COVID.  The difference between states in their post-COVID death rates could be explained by one of the following factors: difference in health care systems, strains of the virus prevalent in the state or the local climate that can affect COVID's ability to spread. 
+
+I chose not to label the x and y axis because I felt that the longitude and the latitude were unrelated to the post-COVID death rate metric and it distracted the reader from the main point of the choropleth. The reader can determine what the axes represent from other data in the graph such as the cardinal directions being shown in axes and by the visual of the map. I labeled the color bar "Post-COVID-19 Death Percentage" so the reader understands what the colors represent. I transformed the Post COVID death rate values into percentages so it would be easier for the reader to grasp immediately. I labeled the title "Post COVID-19 Death Rate by USA State" so the reader could get a general idea of what the data represents. I used a pastel1 color filter as its colors are very distinct from one another and are appealing. I chose to use a choropleth as my visual as it is effective in showing difference in data related to different states.
+ 
+Based on  Chapter 15 of FDV reading, I had chosen not to use a continuous color scale for the post COVID-19 death percentage. That color scale is hard for people to understand. Matching the slight color variations to the values can be difficult for the reader. For this reason, I decided binning the data values into a discrete color scale would make it easier for the reader to distinguish between states.
+```{r}
+Cont_Vacs_Manu_Brand <- read.csv("country_vaccinations_by_manufacturer.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+unique(Cont_Vacs_Manu_Brand)
+```
+
+```{r}
+Cont_Vacs_Manu_Brand<-Cont_Vacs_Manu%>%group_by(vaccine,location) %>% summarize(VaccinesCount=round(max(total_vaccinations)/1000))
+Coun_Vac<-filter(Cont_Vacs_Manu_Brand,location=="France"|location=="Germany"|location=="Italy")
+```
+
+
+```{r,fig.height=4}
+ggplot(Coun_Vac, aes(x=vaccine,y=VaccinesCount,fill=location))+geom_col(position="dodge", colour="black")+labs(title="Number of COVID Vaccines Types Taken In Different Countries",x="Vaccines Type" ,y="Number of Vaccines(in 1,000's)",fill=element_blank())+theme(plot.title = element_text(hjust=0.5))+scale_fill_brewer(palette="Pastel1")+geom_text(aes(label=VaccinesCount), size=3, vjust=-.3, position = position_dodge(.9))
+```
+This bar graph is a visual display of the amount of different vaccines administered in France, Germany and Italy. We can see from the graph that the number of Johnson&Johnson vaccines administered in every country shown is far less than the other vaccine brands. In contrast, Pfizer/BioNTech is the vaccine used the most by far in each of 3 country shown. This could be because of several reasons such as: the population size, date when vaccines were manufactured and made available in that country,the price for the vaccine, ability of people to pay for it and the amount of publicity for each vaccine. Italy seems to be having the least amount of vaccine administered for almost every vaccine brand and Germany appears to have the most. These difference could be because of the population size and the health facilities in each country. For example, Germany has the largest population and economy and its healthcare is among the best The exception for both of these cases is when it comes to the Johnson&Johnson vaccine in which Italy has the most vaccine administered and Germany has the least. It is possible that Italy had better access for this specific vaccine and that is why it has more of Johnson&Johnson adminstered the other countries. 
+
+I chose to label the y-axis "Number of Vaccines(in 1,000's)" to inform the reader that the y-axis is showing number of vaccines administered in units of 1,000. I chose to label the x axis "Vaccine type" to indicate the manufacturer of the vaccine. I labeled the graph "Number of Vaccines by Type Taken In Germany, Italy and France" to allow the reader to understand the meaning of the graph quickly. I chose not to label the color bar as I felt that the audience would be able to understand the its meaning by the countries names and the title. I chose to place the number of vaccines taken by brand right above each bar so that the reader could quickly understand the numerical values represented by the height of each bar. I also altered the text size so that it would fit within the boundaries of the bar chart. The colors of the bars allow the audience to differentiate the data based on country. 
+
+Based on  Chapter 3 of the FDV reading I had chosen to not stack the bar graph so that the data could be more easily compared. Also, I chose not to include more countries in my graph in order to not cluster the visual.
+```{r}
+owid_covid <- read.csv("owid-covid-data.csv", stringsAsFactors = FALSE)
+```
+
+```{r}
+unique(owid_covid$continent)
+```
+
+
+```{r}
+owid_covid<-filter(owid_covid,continent=="Europe"|continent=="Africa"|continent=="Asia"|continent=="South America"|continent=="North America")
+owid_covid <- owid_covid%>% gather(
+ male_smokers:female_smokers, key = "gender",
+ value = "SmokeVal",
+ na.rm = TRUE
+)
+owid_covid
+```
+
+
+```{r}
+ggplot(owid_covid,aes(y=SmokeVal,x=continent,fill=gender))+geom_boxplot()+scale_fill_brewer(palette="Paired")+labs(title="Smoking Value based on Gender and Continent",x=element_blank() ,y="Smoking Value",fill="Gender")
+```
+This box plot shows the smoking values of different continents based on gender. As we can see from this graph, females has a lower smoking value on average than males for every continent. This could be because of social expectations of woman not to smoke. The difference between the average male and female smoking values is greatest for Asia. This could be because countries in this continent have harsher social expectations for woman.
+
+I choose to not label the x-axis as the reader would be able to obtain this information from the title and by the continents being shown as data points. For the y-axis, I labeled it "Smoking Value" so that the reader would have no issues understanding what it values represent. I made the title Smoking Value based on Gender and Continent so that the reader would be able to quickly understand the visual's meaning. I chose to use a color palette so that the reader could easily identify between the gender values (Males vs. Females). I choose to use a box plot for its ability to show the percentiles of its data. I choose to use the title "Smoking Value" based on Gender and Continent to allow the reader to quickly understand what the visual is about. 
+
+
+
+```{r}
+us_state_vac <- read.csv("us_state_vaccinations.csv", stringsAsFactors = FALSE)
+```
+
+
+```{r}
+us_state_vac$date<-ymd(us_state_vac$date)
+us_state_vac<-us_state_vac%>%drop_na()
+us_state_vac_sor<-us_state_vac%>%group_by(date) %>% summarize(tot_daily_vaccinations=sum(daily_vaccinations)/1000,people_fully_vaccinated=sum(people_fully_vaccinated)/100000)
+
+ggplot(us_state_vac_sor,aes(x=date,y=tot_daily_vaccinations,fill=people_fully_vaccinated))+geom_col()+geom_smooth(color="blue")+scale_fill_gradient(low="black",high="red")+labs(title="Vaccination Taken Per Day Over Time in America",x=element_blank() ,y="Total daily vaccinations in Thousands",fill="Fully Vaccinated \npeople(in hundred-thousands)")+geom_text(data=us_state_vac_sor[43,],label="Trend",angle=42,vjust=-1.7,size=3.5,fontface="bold")
+ 
+```
+This time series shows the changes in number of vaccination taken and fully vaccinated people per day in America. We can see that there is a general positive trend of vaccinations taken per day till the middle of April in which the number of vaccinations being taken start decreasing. It is possible that for the first few months of the vaccine its usage rose due to the severity of the COVID virus. The decrease in the middle of April could because of the large number of people being already vaccinated. The color bar supports this hypothesis by showing that the number of people fully vaccinated always increases over time. 
+
+I didn't label the X-axis as I felt that the reader could indicate that it was about time from the data values that are visualized being months and by the title. I choose the Y axis to be Total daily vaccinations in Thousands and the color bar to be Fully Vaccinated people(in hundred-thousands) as I felt without those labels the reader might be confused on what the values represent. I choose to represent the number of vaccines taken per day as columns as I felt they would be an effective  way of representing a large number of numeric data. I choose to plot a smooth line in the chart as the FDV reading states it is a great way to show trends in data within a time series. I choose to label the smooth line trend so that the reader would understand the meaning of the line.    

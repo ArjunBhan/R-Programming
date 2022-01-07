@@ -1,0 +1,185 @@
+---
+title: "[Homework #6]"
+author: "[Arjun Bhan]"
+date: "[5/20/2021]"
+output:
+  html_document:
+    fig_height: 4
+    fig_width: 6
+---
+
+
+* * *
+```{r}
+library(ISLR)
+library(boot)
+?Default
+names(Default)
+head(Default)
+set.seed(100)
+```
+
+#### Exercise 1: 
+```{r}
+mod1=glm(default~balance+income,data=Default, family="binomial")
+summary(mod1)
+
+```
+
+
+
+#### Exercise 2:
+```{r}
+cv.glm(Default,K=5,mod1)$delta[1]
+cv.glm(Default,K=10,mod1)$delta[1]
+#K=10 has the smallest error and therefore the most optimal for the model. Both answers are very similar showing that this method is very stable for the data.
+```
+
+
+#### Exercise 3:
+
+```{r}
+set.seed(9)
+num_obs = nrow(Default)
+
+train_index = sample(num_obs, size = trunc(0.80 * num_obs))
+train_data = Default[train_index, ] 
+test_data = Default[-train_index, ] 
+
+moda=glm(default~balance+income,data=train_data, family="binomial")
+a=predict(moda,newdata=test_data,type="response")
+b=rep("No",nrow(test_data))
+b[a>0.5]="Yes"
+mean(b != test_data$default)
+#The fraction of the observation in the validation set that are incorrectly classified is 0.0255 
+```
+
+#### Exercise 4:
+
+```{r}
+
+set.seed(90)
+num_obs = nrow(Default) 
+
+train_index = sample(num_obs, size = trunc(0.95 * num_obs)) 
+train_data = Default[train_index, ] 
+test_data = Default[-train_index, ] 
+
+moda=glm(default~balance+income,data=train_data, family="binomial")
+a=predict(moda,newdata=test_data,type="response")
+b=rep("No",nrow(test_data))
+b[a>0.5]="Yes"
+mean(b != test_data$default)
+
+set.seed(995)
+num_obs = nrow(Default) 
+
+train_index = sample(num_obs, size = trunc(0.5 * num_obs)) 
+train_data = Default[train_index, ] 
+test_data = Default[-train_index, ] 
+
+moda=glm(default~balance+income,data=train_data, family="binomial")
+a=predict(moda,newdata=test_data,type="response")
+b=rep("No",nrow(test_data))
+b[a>0.5]="Yes"
+mean(b != test_data$default)
+
+set.seed(445)
+num_obs = nrow(Default) 
+
+train_index = sample(num_obs, size = trunc(0.75 * num_obs)) 
+train_data = Default[train_index, ] 
+test_data = Default[-train_index, ] 
+
+moda=glm(default~balance+income,data=train_data, family="binomial")
+a=predict(moda,newdata=test_data,type="response")
+b=rep("No",nrow(test_data))
+b[a>0.5]="Yes"
+mean(b != test_data$default)
+#The outcome of the previous model is not the same as those for the current models. This shows that the validation method is not stable for the data as it gives out different results. This is unlike question number 2 which gave out very similar results.
+```
+
+
+#### Exercise 5:
+```{r}
+set.seed(1)
+X=rnorm(100) #get 100 random numbers from the standard normal distribution N(0,1)
+Y=X-2*X^2+rnorm(100)
+```
+
+```{r}
+plot(X,Y,main = "Scatterplot", col="green",pch=3)
+#The data looks like a parabola. A quadratic formula would likely be the best model to use for this data.
+```
+
+
+
+#### Exercise 6:
+```{r}
+library(boot)
+set.seed(2)
+d=data.frame(X=X,Y=Y)
+
+mod1=glm(Y~X,data=d)
+mod2=glm(Y~X+I(X^2),data=d)
+mod3=glm(Y~X+I(X^2)+I(X^3),data=d)
+mod4=glm(Y~X+I(X^2)+I(X^3)+I(X^4),data=d)
+cv.glm(d,mod1)$delta[1]
+cv.glm(d,mod2)$delta[1]
+cv.glm(d,mod3)$delta[1]
+cv.glm(d,mod4)$delta[1]
+#mod2 had the lowest cost validation error meaning it was the best model
+```
+
+
+#### Exercise 7:
+```{r}
+
+set.seed(2284)
+d=data.frame(X=X,Y=Y)
+mod1=glm(Y~X,data=d)
+mod2=glm(Y~X+I(X^2),data=d)
+mod3=glm(Y~X+I(X^2)+I(X^3),data=d)
+mod4=glm(Y~X+I(X^2)+I(X^3)+I(X^4),data=d)
+cv.glm(d,mod1)$delta[1]
+cv.glm(d,mod2)$delta[1]
+cv.glm(d,mod3)$delta[1]
+cv.glm(d,mod4)$delta[1]
+
+set.seed(278)
+d=data.frame(X=X,Y=Y)
+mod1=glm(Y~X,data=d)
+mod2=glm(Y~X+I(X^2),data=d)
+mod3=glm(Y~X+I(X^2)+I(X^3),data=d)
+mod4=glm(Y~X+I(X^2)+I(X^3)+I(X^4),data=d)
+cv.glm(d,mod1)$delta[1]
+cv.glm(d,mod2)$delta[1]
+cv.glm(d,mod3)$delta[1]
+cv.glm(d,mod4)$delta[1]
+
+
+
+set.seed(431)
+d=data.frame(X=X,Y=Y)
+mod1=glm(Y~X,data=d)
+mod2=glm(Y~X+I(X^2),data=d)
+mod3=glm(Y~X+I(X^2)+I(X^3),data=d)
+mod4=glm(Y~X+I(X^2)+I(X^3)+I(X^4),data=d)
+cv.glm(d,mod1)$delta[1]
+cv.glm(d,mod2)$delta[1]
+cv.glm(d,mod3)$delta[1]
+cv.glm(d,mod4)$delta[1]
+#The answers for this model are the same as for the previous model. This shows that this method is stable as it gives the same result no matter the seed. 
+```
+
+
+#### Exercise 8:
+```{r}
+#Both the graph and the cost validation error show model 2 as the best model. It had the lowest cost validation error. The graph showed a parabola which means that a quadratic formula would likely be the best model to use for this data.
+```
+
+
+
+
+
+

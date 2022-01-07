@@ -1,0 +1,195 @@
+---
+title: "[HW5]"
+author: "[Arjun Bhan]"
+date: "[4-21-2021]"
+output:
+  html_document:
+    fig_height: 4
+    fig_width: 6
+---
+
+
+* * *
+```{r}
+library(MASS)
+?Boston
+library(ggplot2)
+```
+
+#### Exercise 1: 
+```{r}
+#3th degree polynomial
+lm.fit3=lm(medv ~ poly(lstat, degree=3), data=Boston)
+summary(lm.fit3)
+#For the 3th degree polynomial we reject the null hypothesis that H0: beta_j=0 for j=1,2,3 because all pvalues are less than 5%
+
+#4th degree polynomial
+lm.fit4=lm(medv ~ poly(lstat, degree=4), data=Boston)
+summary(lm.fit4)
+#For the 4th degree polynomial we reject the null hypothesis that H0: beta_j=0 for j=1,2,3,4 because all pvalues are less than 5%
+
+#6th degree polynomial
+lm.fit6=lm(medv ~ poly(lstat, degree=6),data=Boston)
+summary(lm.fit6)
+#For the 6th degree polynomial we reject the H0: that beta_j=0 for j=1,2,3,4,5 because all pvalues are less than 5%. We fail to reject j=6 because the pvalue is 0.212313 which is greater than .05.
+```
+
+
+#### Exercise 2:
+```{r}
+set.seed(9)
+num_obs = nrow(Boston) #get the number of rows
+train_index = sample(num_obs, size = trunc(0.80 * num_obs)) #get 80% random rows
+train_data = Boston[train_index, ] #train data 
+test_data = Boston[-train_index, ] #test data: all except every thing in the train data
+
+#Root mean square error function
+rmse = function(actual, predicted) {
+  sqrt(mean((actual - predicted) ^ 2))
+}
+#Define the model complexity
+get_complexity = function(model) {
+  length(coef(model)) - 1 #return the number of variables (predictors)
+}
+#Get the RMSE for a model
+get_rmse = function(model, data, response) {
+  rmse(actual = data[, response],
+       predicted = predict(model, data))
+}
+lm.fit1=lm(medv~lstat, data=train_data)
+lm.fit2=lm(medv~lstat+I(lstat^2), data=train_data)
+lm.fit3=lm(medv~lstat+I(lstat^2)+I(lstat^3), data=train_data)
+lm.fit4=lm(medv~lstat+I(lstat^2)+I(lstat^3)+I(lstat^4), data=train_data)
+lm.fit5=lm(medv~lstat+I(lstat^2)+I(lstat^3)+I(lstat^4)+I(lstat^5), data=train_data)
+lm.fit6=lm(medv~lstat+I(lstat^2)+I(lstat^3)+I(lstat^4)+I(lstat^5)+I(lstat^6), data=train_data)
+model_list = list(lm.fit1, lm.fit2, lm.fit3, lm.fit4, lm.fit5, lm.fit6)
+
+#get the train error from the list of models 
+train_rmse = sapply(model_list, get_rmse, data = train_data, response = "medv") 
+
+#get the test error from the list of models 
+test_rmse = sapply(model_list, get_rmse, data = test_data, response = "medv")
+
+#get the model complexity
+model_complexity = sapply(model_list, get_complexity)
+
+#Find the R^2 values for all models
+R.Square=c(summary(lm.fit1)$r.squared,
+           summary(lm.fit2)$r.squared,
+           summary(lm.fit3)$r.squared,
+           summary(lm.fit4)$r.squared,
+           summary(lm.fit5)$r.squared,
+           summary(lm.fit6)$r.squared)
+```
+
+```{r}
+#Create a data frame to list models, train error, test error, R^2 value, number of variables
+data.frame(Model=c("fit_1", "fit_2", "fit_3", "fit_4", "fit_5","fit_6"),
+           Train_RMSE=train_rmse,
+           Test_RMSE=test_rmse,
+           R_squared=R.Square,
+           Number_predictors=model_complexity
+            )
+
+
+#Plot train rmse as a function of model complexity 
+plot(model_complexity, train_rmse, type = "b",
+     ylim = c(min(c(train_rmse, test_rmse)) - 0.02,
+              max(c(train_rmse, test_rmse)) + 0.02),
+     col = "dodgerblue",
+     xlab = "Model Size",
+     ylab = "RMSE")
+
+#add test rmse as a function of model complexity into the previous graph
+
+lines(model_complexity, test_rmse, type = "b", col = "darkorange")
+
+#add legend into the graph
+legend(3, 5.8, 
+       legend=c("Train_RMSE~f (Model complexity)", "TEST_RMSE~f (Model complexity)"),
+       col=c("dodgerblue", "darkorange"),
+       lty=1:2, cex=0.8)
+#fit_5 has the smallest test error and therefore the best model.
+```
+
+
+#### Exercise 3:
+
+```{r}
+mod1=lm(crim~zn+indus+chas+nox+rm+age+dis+rad+tax+ptratio+black+lstat+medv, data=Boston)
+summary(mod1)
+#For the linear regression we reject the H0:βi=0 for zn,dis,rad, black and medv because the pvalue is less than .05. We fail to reject the null hypothesis for indus, chas,nox,rm,age,tax,ptratio and lstat because the pvalue is greater than .05.
+```
+
+#### Exercise 4:
+```{r}
+set.seed(2000)
+num_obs = nrow(Boston) #get the number of rows
+train_index = sample(num_obs, size = trunc(0.80 * num_obs)) #get 80% random rows
+train_data = Boston[train_index, ] #train data 
+test_data = Boston[-train_index, ] #test data: all except every thing in the train data
+
+#Root mean square error function
+rmse = function(actual, predicted) {
+  sqrt(mean((actual - predicted) ^ 2))
+}
+#Define the model complexity
+get_complexity = function(model) {
+  length(coef(model)) - 1 #return the number of variables (predictors)
+}
+#Get the RMSE for a model
+get_rmse = function(model, data, response) {
+  rmse(actual = data[, response],
+       predicted = predict(model, data))
+}
+mod1=lm(crim~rad+dis+zn+medv, data=train_data)
+mod2=lm(crim~medv+I(medv^2)+I(medv^3), data=train_data)
+mod3=lm(crim~medv*dis*tax, data=train_data)
+model_list = list(mod1, mod2, mod3)
+
+
+#get the train error from the list of models 
+train_rmse = sapply(model_list, get_rmse, data = train_data, response = "crim") 
+
+#get the test error from the list of models 
+test_rmse = sapply(model_list, get_rmse, data = test_data, response = "crim")
+
+#get the model complexity
+model_complexity = sapply(model_list, get_complexity)
+
+#Find the R^2 values for all models
+R.Square=c(summary(mod1)$r.squared,
+           summary(mod2)$r.squared,
+           summary(mod3)$r.squared)
+```
+
+
+```{r}
+data.frame(Model=c("mod1", "mod2", "mod3"),
+          Train_RMSE=train_rmse,
+           Test_RMSE=test_rmse,
+           R_squared=R.Square,
+           Number_predictors=model_complexity
+            )
+
+
+#Plot train rmse as a function of model complexity 
+plot(model_complexity, train_rmse, type = "b",
+     ylim = c(min(c(train_rmse, test_rmse)) - 0.02,
+              max(c(train_rmse, test_rmse)) + 0.02),
+     col = "dodgerblue",
+     xlab = "Model Size",
+     ylab = "RMSE")
+
+#add test rmse as a function of model complexity into the previous graph
+
+lines(model_complexity, test_rmse, type = "b", col = "darkorange")
+
+#add legend into the graph
+legend(4, 6.4, 
+       legend=c("Train_RMSE~f (Model complexity)", "TEST_RMSE~f (Model complexity)"),
+       col=c("dodgerblue", "darkorange"),
+       lty=1:2, cex=0.8)
+#mod1 has lowest test error and therefore the best model.
+```
+
